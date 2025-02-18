@@ -1,11 +1,9 @@
-from numpy.typing import NDArray
 import xyz_parser as xyz
 from dataclasses import dataclass
 from atomic_masses import ATOMIC_MASSES
 import numpy as np
-from numpy import geomspace, linalg
+from numpy import linalg
 from copy import deepcopy
-from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 
@@ -23,29 +21,6 @@ class NormalMode:
     frequency: float
     displacement: list[AtomVector]
     at: Geometry
-
-
-
-# plt.imshow(hessian)
-# deuterated_hessian = deut_mass_inv_sqrt @ hessian @ deut_mass_inv_sqrt
-# plt.imshow(deuterated_hessian)
-# for freq in deuterated_evals:
-#     print(f'{freq=}')
-#
-
-# print(nmodes_matrix)
-# print(f'{mass_matrix=}')
-# print(f'{deuterated_mass_matrix=}')
-# print(f'{hessian=}')
-
-
-# plt.imshow(hessian)
-# plt.imshow(np.log(deuterated_mass_matrix+1))
-# plt.imshow(np.log(mass_matrix+1))
-# plt.imshow(nmodes_matrix)
-# plt.imshow(weighted_D)
-# plt.colorbar()
-# plt.show()
 
 
 def collect_normal_modes() -> list[NormalMode]:
@@ -149,14 +124,57 @@ def diagonalize_hessian(
     mass_inv_sqrt = get_mass_inv_sqrt(mass_sqrt)
     mass_weighted_hessian = mass_inv_sqrt @ hessian @ mass_inv_sqrt
     eigensystem = linalg.eig(mass_weighted_hessian)
-    evals = eigensystem.eigenvalues
-    evects = eigensystem.eigenvectors
-    freqs = [np.sqrt(freq.real) for freq in evals if freq.real > 1]
-    
-    for idx, freq in enumerate(sorted(freqs)):
-        print(f'{idx:3d}: {freq:>4.0f}')
     return eigensystem
 
+
+def print_eigenvalues(
+    evals: np.typing.NDArray[np.float64],
+    show_tr_rot: bool = False,
+) -> None:
+    """ `evals` is expected to be the value of the `eigenvalues` attribut of
+    the return value of np.linalg.eig funciton. """
+    freqs = [np.sqrt(freq.real) for freq in evals if freq.real > 1]
+
+    if show_tr_rot is True:
+        freqs.extend(0.0 for freq in evals if freq.real <= 1)
+    
+    for idx, freq in enumerate(sorted(freqs)):
+        print(f'{idx + 1:3d}: {freq:>4.0f}')
+
+
+def print_pair_of_eigenvalues(
+    left: np.typing.NDArray[np.float64],
+    right: np.typing.NDArray[np.float64],
+) -> None:
+    """ Both `left` and `right` are expected to be the values of the
+    `eigenvalues` attribut of the return value of np.linalg.eig funciton. """
+    left_freqs = [np.sqrt(freq.real) for freq in left if freq.real > 1]
+    right_freqs = [np.sqrt(freq.real) for freq in right if freq.real > 1]
+
+    if len(left_freqs) != len(right_freqs):
+        raise RuntimeError("Mismatch in the number of frequencies.")
+    
+    for idx, (left, right) in enumerate(zip(sorted(left_freqs), sorted(right_freqs))):
+        print(f'{idx + 1:3d}: {left:>4.0f} {right:>4.0f}')
+
+def str_eigenvalue(eval):
+    if eval.real > 0:
+        return f"{np.sqrt(eval.real):4.0f}"
+    else:
+        return f"{0}"
+
+
+def show_nmodes_matrix(eigensystem: np.linalg._linalg.EigResult) -> None:
+    _, ax = plt.subplots()
+    nmodes = np.matrix(eigensystem.eigenvectors)
+    freqs = [str_eigenvalue(eval) for eval in eigensystem.eigenvalues]
+    ax.imshow(nmodes.real, aspect='equal')
+    ax.set_xticks([idx for idx, _ in enumerate(freqs)])
+    ax.set_xticklabels(freqs)
+    ax.tick_params(axis='x', labelrotation=70)
+    # ax.tick_params(axis='x', labelsize=6)
+    # plt.xticks_labels(frequencies)
+    plt.show()
 
 
 def main():
@@ -165,11 +183,14 @@ def main():
     hessian = build_hessian(normal_modes, mass_matrix)
     eigensystem = diagonalize_hessian(hessian, mass_matrix) 
 
+    deuterated_masses = deepcopy(ATOMIC_MASSES)
+    deuterated_masses['H'] = 2.0
+    deuterated_mm = build_mass_matrix(normal_modes[0].at, deuterated_masses)
+    deuterated = diagonalize_hessian(hessian, deuterated_mm)
 
-    # deuterated_masses = deepcopy(ATOMIC_MASSES)
-    # deuterated_masses['H'] = 2.0
-    # deuterated_mass_matrix = build_mass_matrix(normal_modes[0].at, ATOMIC_MASSES)
-
+    # print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
+    show_nmodes_matrix(eigensystem)
+    show_nmodes_matrix(deuterated)
 
 
 if __name__ == "__main__":

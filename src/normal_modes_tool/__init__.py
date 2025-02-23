@@ -236,6 +236,34 @@ def show_nmodes_matrix(eigensystem: np.linalg._linalg.EigResult) -> None:
     plt.show()
 
 
+def generated_displaced_geometry(
+    which_mode: int,
+    displacement: float,
+    reference_geometry: Geometry,
+    normal_modes: list[NormalMode],
+    mass_matrix: np.typing.NDArray[np.float64],
+) -> Geometry:
+    """ Build a new molecular geometry by displacing the reference geometry by
+    `displacement` AA sqrt(amu) along the normal mode number `which_mode` """
+    which_mode = 0
+    len_nmodes = len(normal_modes)
+    
+    nmodes_matrix = build_nmodes_matrix(normal_modes)
+
+    displaced_vector_normal_coordinates = np.zeros(shape=(len_nmodes))
+    displaced_vector_normal_coordinates[which_mode] = displacement
+    displaced_vector_mass_weighted =\
+            nmodes_matrix @ displaced_vector_normal_coordinates
+    mass_inv_sqrt = get_mass_inv_sqrt(mass_matrix)
+    displacement_Descartes =\
+            mass_inv_sqrt @ displaced_vector_mass_weighted\
+            + reference_geometry.to_numpy()
+
+    atom_names = [atom.name for atom in reference_geometry.atoms]
+    displaced = Geometry.from_numpy(displacement_Descartes, atom_names=atom_names)
+    return displaced
+
+
 def main():
     normal_modes = collect_normal_modes()
     equilibrium_Descarte = normal_modes[0].at
@@ -248,9 +276,27 @@ def main():
     deuterated_mm = build_mass_matrix(equilibrium_Descarte, deuterated_masses)
     deuterated = diagonalize_hessian(hessian, deuterated_mm)
 
-    print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
-    show_nmodes_matrix(eigensystem)
-    show_nmodes_matrix(deuterated)
+    # print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
+    # show_nmodes_matrix(eigensystem)
+    # show_nmodes_matrix(deuterated)
+
+    # These are normalized
+    # plt.imshow(nmodes_matrix.T @ nmodes_matrix)
+    # plt.show()
+    for displacement in [0.00, 0.01, 0.02, 0.03, 0.04]:
+        displaced_mode = 0
+        displaced = generated_displaced_geometry(
+            which_mode=displaced_mode,
+            displacement=displacement,
+            reference_geometry=equilibrium_Descarte,
+            normal_modes=normal_modes,
+            mass_matrix=mass_matrix,
+        )
+        displaced_xyz = xyz.MoleculeXYZ.from_Geometry(
+            displaced, comment = f'Displaced {displacement} Å√(amu) along'
+            f' mode {displaced_mode}',
+        )
+        print(displaced_xyz)
 
 
 if __name__ == "__main__":

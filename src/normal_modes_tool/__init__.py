@@ -12,15 +12,56 @@ class AtomVector:
     name: str
     xyz: list[float]
 
+
 @dataclass
 class Geometry:
     atoms: list[AtomVector]
+
+    def to_numpy(self) -> np.typing.NDArray[np.float64]:
+        dim = 3 * len(self.atoms)
+        geometry = np.zeros(shape=dim)
+        for idx, atom in enumerate(self.atoms):
+            geometry[3 * idx: 3 * idx + 3] = [
+                np.float64(cart) for cart in atom.xyz
+            ]
+
+        return geometry
+    
+
+    @classmethod
+    def from_numpy(cls, vec, atom_names):
+        assert len(vec) % 3 == 0
+        assert len(vec) // 3 == len(atom_names)
+        atoms = list()
+        for idx, element in enumerate(atom_names):
+            atoms.append(AtomVector(
+                name=element,
+                xyz=[float(coord) for coord in vec[3*idx: 3*idx+3]]
+            ))
+        return cls(atoms=atoms)
+
 
 @dataclass
 class NormalMode:
     frequency: float
     displacement: list[AtomVector]
     at: Geometry
+
+    def __str__(self) -> str:
+        fmt = '-13.8f'
+        str_xyz = f"{len(self.displacement)}\n"
+        str_xyz += f"Comment\n"
+        for geo, nmd in zip(self.at.atoms, self.displacement):
+            assert geo.name == nmd.name
+            str_xyz += f"{geo.name:<3}"
+            for coord in geo.xyz:
+                str_xyz += f"{coord:{fmt}}"
+            for coord in nmd.xyz:
+                str_xyz += f"{coord:{fmt}}"
+            str_xyz += '\n'
+        str_xyz = str_xyz[:-1]  # trim trailin new line
+
+        return str_xyz
 
 
 def collect_normal_modes() -> list[NormalMode]:
@@ -55,6 +96,12 @@ def collect_normal_modes() -> list[NormalMode]:
     return normal_modes
 
 
+def normalize_symbol(original: str) -> str:
+   all_caps  = original.capitalize()
+   first_cap = all_caps[0] + all_caps[1:].lower()
+   return first_cap
+
+
 def build_mass_matrix(
     geometry: Geometry,
     masses_dict: dict[str, float]
@@ -62,11 +109,32 @@ def build_mass_matrix(
     dim = 3 * len(geometry.atoms)
     diagonal = np.zeros(shape=dim, dtype=np.float64)
     for idx, atom in enumerate(geometry.atoms):
-        atom_mass = np.float64(masses_dict[atom.name])
+        atom_mass = np.float64(masses_dict[normalize_symbol(atom.name)])
         diagonal[3 * idx: 3 * idx + 3] = [atom_mass for _ in range(3)]
     mass_matrix = np.zeros(shape=(dim, dim), dtype=np.float64)
     np.fill_diagonal(mass_matrix, diagonal)
     return mass_matrix
+
+
+def build_nmodes_matrix(
+    normal_modes: list[NormalMode],
+) -> np.typing.NDArray[np.float64]:
+    """ Eigenvectors of the mass-weighted Hessian form columns. """
+
+    len_nm = len(normal_modes)
+    dim = 3 * len(normal_modes[0].at.atoms)
+    nmodes_matrix = np.zeros(
+        shape=(dim, len_nm),
+        dtype=np.float64,
+    )
+
+    for column, mode in enumerate(normal_modes):
+        for atom_idx, atom in enumerate(mode.displacement):
+            for cart_idx in range(3):
+                row = atom_idx * 3 + cart_idx
+                nmodes_matrix[row, column] = np.float64(atom.xyz[cart_idx])
+
+    return nmodes_matrix
 
 
 def build_hessian(
@@ -75,13 +143,6 @@ def build_hessian(
 ) -> np.typing.NDArray[np.float64]:
 
     len_nm = len(normal_modes)
-    dim = 3 * len(normal_modes[0].at.atoms)
-
-    # eigenvectors of the mass-weighted Hessian form columns
-    nmodes_matrix = np.zeros(
-        shape=(dim, len_nm),
-        dtype=np.float64,
-    )
 
     freq_matrix = np.zeros(
         shape=(len_nm, len_nm),
@@ -90,10 +151,8 @@ def build_hessian(
 
     for column, mode in enumerate(normal_modes):
         freq_matrix[column, column] = np.float64(mode.frequency)
-        for atom_idx, atom in enumerate(mode.displacement):
-            for cart_idx in range(3):
-                row = atom_idx * 3 + cart_idx
-                nmodes_matrix[row, column] = np.float64(atom.xyz[cart_idx])
+
+    nmodes_matrix = build_nmodes_matrix(normal_modes)
 
     weighted_D = np.sqrt(mass_matrix) @ nmodes_matrix 
     hessian = weighted_D @ freq_matrix**2 @ weighted_D.transpose()
@@ -102,9 +161,10 @@ def build_hessian(
 
 
 def get_mass_inv_sqrt(
-        mass_sqrt: np.typing.NDArray[np.float64]
+        mass_matrix: np.typing.NDArray[np.float64]
 ) -> np.typing.NDArray[np.float64]:
 
+    mass_sqrt = np.sqrt(mass_matrix)
     mass_inv_sqrt = np.zeros(
         shape=mass_sqrt.shape,
         dtype=mass_sqrt.dtype
@@ -120,8 +180,7 @@ def diagonalize_hessian(
     mass_matrix: np.typing.NDArray[np.float64],
 ) -> np.linalg._linalg.EigResult:
 
-    mass_sqrt = np.sqrt(mass_matrix)
-    mass_inv_sqrt = get_mass_inv_sqrt(mass_sqrt)
+    mass_inv_sqrt = get_mass_inv_sqrt(mass_matrix)
     mass_weighted_hessian = mass_inv_sqrt @ hessian @ mass_inv_sqrt
     eigensystem = linalg.eig(mass_weighted_hessian)
     return eigensystem
@@ -179,16 +238,17 @@ def show_nmodes_matrix(eigensystem: np.linalg._linalg.EigResult) -> None:
 
 def main():
     normal_modes = collect_normal_modes()
-    mass_matrix = build_mass_matrix(normal_modes[0].at, ATOMIC_MASSES)
+    equilibrium_Descarte = normal_modes[0].at
+    mass_matrix = build_mass_matrix(equilibrium_Descarte, ATOMIC_MASSES)
     hessian = build_hessian(normal_modes, mass_matrix)
     eigensystem = diagonalize_hessian(hessian, mass_matrix) 
 
     deuterated_masses = deepcopy(ATOMIC_MASSES)
     deuterated_masses['H'] = 2.0
-    deuterated_mm = build_mass_matrix(normal_modes[0].at, deuterated_masses)
+    deuterated_mm = build_mass_matrix(equilibrium_Descarte, deuterated_masses)
     deuterated = diagonalize_hessian(hessian, deuterated_mm)
 
-    # print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
+    print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
     show_nmodes_matrix(eigensystem)
     show_nmodes_matrix(deuterated)
 

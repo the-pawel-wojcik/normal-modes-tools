@@ -1,0 +1,19 @@
+[project]
+name = "normal_modes_tools"
+version = "0.0.01"
+description = "Tools for working with normal modes"
+readme = "readme.md"
+requires-python = ">=3.13"
+authors = [
+  {name = "Paweł Wójcik", email = "the.pawel.wojcik@gmail.com"}
+]
+keywords = ["chemistry"]
+dependencies = [
+    "xyz_parser",
+    "numpy",
+    "matplotlib",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

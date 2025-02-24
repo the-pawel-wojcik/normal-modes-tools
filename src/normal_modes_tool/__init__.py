@@ -1,10 +1,10 @@
+from __future__ import annotations
 import xyz_parser as xyz
 from dataclasses import dataclass
-from atomic_masses import ATOMIC_MASSES
+from normal_modes_tool.atomic_masses import ATOMIC_MASSES
 import numpy as np
 from numpy import linalg
 from copy import deepcopy
-import os
 import matplotlib.pyplot as plt
 
 @dataclass
@@ -63,17 +63,37 @@ class NormalMode:
 
         return str_xyz
 
+    def get_numpy(self) -> np.typing.NDArray[np.float64]:
+        array = np.zeros(shape=3 * len(self.displacement), dtype=np.float64)
+        for idx, atom in enumerate(self.displacement):
+            array[3 * idx: 3 * idx + 3] = deepcopy(atom.xyz)
+        return array
+    
+    def __matmul__(self, other: NormalMode) -> float:
+        if not isinstance(other, NormalMode):
+            return NotImplemented
+        
+        left = self.get_numpy()
+        left /= np.linalg.norm(left)
 
-def collect_normal_modes() -> list[NormalMode]:
-    xyz_file_path = os.path.expanduser("~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
-    )
-    with open(xyz_file_path) as xyz_file:
-        molecules = xyz.parse(xyz_file)
+        right = other.get_numpy()
+        right /= np.linalg.norm(right)
 
+        inner = np.dot(left, right)
+        return inner
 
-    normal_modes: list[NormalMode] = list()
-    for molecule in molecules:
-        frequency = float(molecule.comment.split()[3])
+    @classmethod
+    def from_MoleculeXYZ(cls, molecule: xyz.MoleculeXYZ) -> NormalMode:
+        try:
+            # TODO: The files that I use right now keep frequencies as fourth
+            # entry in the comment. This should be improved.
+            frequency = float(molecule.comment.split()[3])
+        except (ValueError, IndexError) as _:
+            raise ValueError(
+                "Expecting the fourth element in the xyz comment line to store"
+                " the harmonic frequency in cm-1."
+            ) from None
+            
         geometry = Geometry(atoms=list())
         normalmode = NormalMode(
             frequency=frequency,
@@ -86,14 +106,35 @@ def collect_normal_modes() -> list[NormalMode]:
                 name = atom.symbol,
                 xyz = [atom.x, atom.y, atom.z],
             ))
+            if len(atom.extra) != 3:
+                raise ValueError(
+                    "Expecting that each atom line in the xyz file stores six: "
+                    "floats: three for the atom's postion, and three for the "
+                    "normal mode's dispacement."
+                ) from None
             normalmode.displacement.append(AtomVector(
                 name = atom.symbol,
                 xyz = atom.extra,
             ))
+        return normalmode
 
-        normal_modes.append(normalmode)
+
+def moleculeXYZ_to_NormalModesList(
+    xyz_nmodes: list[xyz.MoleculeXYZ]
+) -> list[NormalMode]:
+    normal_modes: list[NormalMode] = list()
+    for molecule in xyz_nmodes:
+        normal_modes.append(NormalMode.from_MoleculeXYZ(molecule))
 
     return normal_modes
+
+
+def collect_normal_modes(
+    xyz_path: str,
+) -> list[NormalMode]:
+    nmodes_xyz = xyz.read_xyz_file(xyz_path)
+    nmodes = moleculeXYZ_to_NormalModesList(nmodes_xyz)
+    return nmodes
 
 
 def normalize_symbol(original: str) -> str:
@@ -265,7 +306,9 @@ def generated_displaced_geometry(
 
 
 def main():
-    normal_modes = collect_normal_modes()
+    xyz_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
+    normal_modes = collect_normal_modes(xyz_path)
+
     equilibrium_Descarte = normal_modes[0].at
     mass_matrix = build_mass_matrix(equilibrium_Descarte, ATOMIC_MASSES)
     hessian = build_hessian(normal_modes, mass_matrix)

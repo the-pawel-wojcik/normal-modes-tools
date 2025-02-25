@@ -32,7 +32,7 @@ def compare_mode_alignment(
             active = list()
             for basis_idx, basis_mode in enumerate(basis):
                 inner = basis_mode @ target_mode
-                if inner > 0.032: # sqrt(0.001) aka. 0.1 %
+                if abs(inner) > 0.032: # sqrt(0.001) aka. 0.1 %
                     active.append({
                         'inner': inner,
                         'basis idx': basis_idx,
@@ -41,7 +41,11 @@ def compare_mode_alignment(
                 f'Mode {idx:<2d} ({target_mode.frequency:4.0f} cm-1):',
                 end=''
             )
-            for term in sorted(active, key=lambda x: x['inner'], reverse=True):
+            for term in sorted(
+                active,
+                key=lambda x: abs(x['inner']),
+                reverse=True
+            ):
                 inner = term['inner']
                 basis_idx = term['basis idx']
                 print(f' {inner:+4.3f}|{basis_idx:>2d}>', end='')
@@ -54,31 +58,37 @@ def main():
     # old_nmds_path = args.old
     # new_nmds_path = args.new
     ground_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
-    a_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0a/findiff/nmodes.xyz"
-    b_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0b/findiff/nmodes_cfour.xyz"
-    c_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0c/findiff/nmodes_cfour.xyz"
+    # a_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0a/findiff/nmodes.xyz"
+    # b_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0b/findiff/nmodes_cfour.xyz"
+    # c_nmds_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/g0c/findiff/nmodes_cfour.xyz"
+    deuterated_path = "./SrOPh-5d_normal_modes.xyz"
 
     ground_nmds = nmt.collect_normal_modes(ground_nmds_path)
-    a_nmds = nmt.collect_normal_modes(a_nmds_path)
-    b_nmds = nmt.collect_normal_modes(b_nmds_path)
-    c_nmds = nmt.collect_normal_modes(c_nmds_path)
+    # a_nmds = nmt.collect_normal_modes(a_nmds_path)
+    # b_nmds = nmt.collect_normal_modes(b_nmds_path)
+    # c_nmds = nmt.collect_normal_modes(c_nmds_path)
+    deuterated_nmds = nmt.collect_normal_modes(deuterated_path)
 
     modes = [
         {
-            'name': 'X',
+            'name': 'SrOPh X',
             'modes': ground_nmds,
         },
+        # {
+        #     'name': 'A',
+        #     'modes': a_nmds,
+        # },
+        # {
+        #     'name': 'B',
+        #     'modes': b_nmds,
+        # },
+        # {
+        #     'name': 'C',
+        #     'modes': c_nmds,
+        # },
         {
-            'name': 'A',
-            'modes': a_nmds,
-        },
-        {
-            'name': 'B',
-            'modes': b_nmds,
-        },
-        {
-            'name': 'C',
-            'modes': c_nmds,
+            'name': 'SrOPh-5d X',
+            'modes': deuterated_nmds,
         },
     ]
 

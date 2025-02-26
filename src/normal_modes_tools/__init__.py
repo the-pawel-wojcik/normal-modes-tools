@@ -441,6 +441,34 @@ def displace_mode(
         print(displaced_xyz)
 
 
+def find_nmodes_displacement(
+    start: Geometry,
+    end: Geometry,
+    nmodes: list[NormalMode],
+) -> np.typing.NDArray[np.float64]:
+
+    # Make sure that these are the same molecules
+    for atom_s, atom_e in zip(start.atoms, end.atoms, strict=True):
+        if atom_s.name != atom_e.name:
+            raise ValueError(f"Mismatch between atoms {atom_s} and {atom_e}")
+
+    dim = 3 * len(start.atoms)
+    displacement_Descartes = np.zeros(shape=dim)
+    for idx, (satom, eatom) in enumerate(
+        zip(start.atoms, end.atoms, strict=True)
+    ):
+        displacement_Descartes[3 * idx:3 * idx + 3] = [
+            e - s for e, s in zip(eatom.xyz, satom.xyz)
+        ]
+
+    mass_matrix = build_mass_matrix(start, masses_dict=ATOMIC_MASSES)
+    displacement_mass_weighted = np.sqrt(mass_matrix) @ displacement_Descartes
+
+    nmodes_matrix = build_nmodes_matrix(nmodes)
+    nmodes_displacements = nmodes_matrix.T @ displacement_mass_weighted
+    return nmodes_displacements
+
+
 def main():
     xyz_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
     normal_modes = collect_normal_modes(xyz_path)

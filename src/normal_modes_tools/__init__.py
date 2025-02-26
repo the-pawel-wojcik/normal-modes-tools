@@ -42,6 +42,18 @@ class Geometry:
         return cls(atoms=atoms)
 
 
+    @classmethod
+    def from_MoleculeXYZ(cls, molecule: xyz.MoleculeXYZ) -> Geometry:
+        """ TODO: This is too similar to NormalMode.from_MoleculeXYZ """
+        geometry = Geometry(atoms=list())
+        for atom in molecule.atoms:
+            geometry.atoms.append(AtomVector(
+                name = atom.symbol,
+                xyz = [atom.x, atom.y, atom.z],
+            ))
+        return geometry
+
+
 @dataclass
 class NormalMode:
     frequency: float
@@ -169,7 +181,7 @@ class NormalMode:
         return normalmode
 
 
-def moleculeXYZ_to_NormalModesList(
+def moleculeXYZList_to_NormalModesList(
     xyz_nmodes: list[xyz.MoleculeXYZ]
 ) -> list[NormalMode]:
     normal_modes: list[NormalMode] = list()
@@ -183,7 +195,7 @@ def collect_normal_modes(
     xyz_path: str,
 ) -> list[NormalMode]:
     nmodes_xyz = xyz.read_xyz_file(xyz_path)
-    nmodes = moleculeXYZ_to_NormalModesList(nmodes_xyz)
+    nmodes = moleculeXYZList_to_NormalModesList(nmodes_xyz)
     return nmodes
 
 

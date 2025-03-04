@@ -108,8 +108,8 @@ def main():
     old_nmds_path = args.old
     new_nmds_paths = args.new
 
-    old_nmds = nmt.collect_normal_modes(old_nmds_path)
-    new_nmds_list = [nmt.collect_normal_modes(path) for path in new_nmds_paths]
+    old_nmds = nmt.xyz_file_to_NormalModesList(old_nmds_path)
+    new_nmds_list = [nmt.xyz_file_to_NormalModesList(path) for path in new_nmds_paths]
 
 
     for idx, modes in enumerate(new_nmds_list):

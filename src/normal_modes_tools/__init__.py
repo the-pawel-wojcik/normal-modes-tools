@@ -56,14 +56,17 @@ class Geometry:
 
 @dataclass
 class NormalMode:
+    """ Data structure for a storage of an eigenvector of a mass-weighted
+    Hessian. """
     frequency: float
     displacement: list[AtomVector]
     at: Geometry
+    atomic_masses: list[float] | None = None
 
     def __str__(self) -> str:
         fmt = '-13.8f'
         str_xyz = f"{len(self.displacement)}\n"
-        str_xyz += f"Comment\n"
+        str_xyz += f"XX. Vibration mode, {self.frequency:.2f} cm-1, SYM\n"
         for geo, nmd in zip(self.at.atoms, self.displacement):
             assert geo.name == nmd.name
             str_xyz += f"{geo.name:<3}"
@@ -72,7 +75,7 @@ class NormalMode:
             for coord in nmd.xyz:
                 str_xyz += f"{coord:{fmt}}"
             str_xyz += '\n'
-        str_xyz = str_xyz[:-1]  # trim trailin new line
+        str_xyz = str_xyz[:-1]  # trim trailing new line
 
         return str_xyz
 
@@ -95,7 +98,9 @@ class NormalMode:
         frequency: float,
         vector: np.typing.NDArray[np.float64],
         geometry: Geometry,
+        atomic_masses_list: list[float] | None = None,
     ) -> NormalMode:
+        """ `atomic_masses_list` is used for isotope-substituted molecules """
 
         displacement = deepcopy(geometry.atoms)
         for idx, atom in enumerate(displacement):
@@ -105,6 +110,7 @@ class NormalMode:
             frequency=frequency,
             displacement=displacement,
             at=geometry,
+            atomic_masses=atomic_masses_list,
         )
 
 
@@ -191,7 +197,7 @@ def moleculeXYZList_to_NormalModesList(
     return normal_modes
 
 
-def collect_normal_modes(
+def xyz_file_to_NormalModesList(
     xyz_path: str,
 ) -> list[NormalMode]:
     nmodes_xyz = xyz.read_xyz_file(xyz_path)
@@ -293,8 +299,8 @@ def print_eigenvalues(
     evals: np.typing.NDArray[np.float64],
     show_tr_rot: bool = False,
 ) -> None:
-    """ `evals` is expected to be the value of the `eigenvalues` attribut of
-    the return value of np.linalg.eigh funciton. """
+    """ `evals` is expected to be the value of the `eigenvalues` attribute of
+    the return value of np.linalg.eigh function. """
     freqs = [np.sqrt(freq.real) for freq in evals if freq.real > 1]
 
     if show_tr_rot is True:
@@ -309,7 +315,7 @@ def print_pair_of_eigenvalues(
     right: np.typing.NDArray[np.float64],
 ) -> None:
     """ Both `left` and `right` are expected to be the values of the
-    `eigenvalues` attribut of the return value of np.linalg.eigh funciton. """
+    `eigenvalues` attribute of the return value of np.linalg.eigh function."""
     left_freqs = [np.sqrt(freq.real) for freq in left if freq.real > 1]
     right_freqs = [np.sqrt(freq.real) for freq in right if freq.real > 1]
 
@@ -327,6 +333,7 @@ def str_eigenvalue(eval):
 
 
 def show_nmodes_matrix(eigensystem: np.linalg._linalg.EighResult) -> None:
+    """Display a figure showing the eigsystem of the mass-weighted Hessian. """
     _, ax = plt.subplots()
     nmodes = np.matrix(eigensystem.eigenvectors)
     freqs = [str_eigenvalue(eval) for eval in eigensystem.eigenvalues]
@@ -373,20 +380,28 @@ def generated_displaced_geometry(
 def esystem_to_NModes(
     esystem: np.linalg._linalg.EighResult,
     geometry: Geometry,
+    atomic_masses_dict: dict[str, float] | None = None,
+    skip_tr_rot_modes: bool = True,
 ) -> list[NormalMode]:
     nmodes = list()
+
+    atomic_masses_list = None
+    if atomic_masses_dict is not None:
+        atomic_masses_list = list()
+        for atom in geometry.atoms:
+            mass = atomic_masses_dict[normalize_symbol(atom.name)]
+            atomic_masses_list.append(deepcopy(mass))
+
+
     for evalue, vector in zip(esystem.eigenvalues, esystem.eigenvectors.T):
-        if evalue < 0.1:
-            print(
-                f"Skipping mode with Hessian eigenvalue {evalue:5.2f}.",
-                file=sys.stderr
-            )
+        if skip_tr_rot_modes and evalue < 0.1:
             continue
         frequency = np.sqrt(evalue)
         nmodes.append(NormalMode.from_numpy(
             frequency=frequency,
             vector=vector,
             geometry=geometry,
+            atomic_masses_list=atomic_masses_list,
         ))
     nmodes.sort()
 
@@ -395,7 +410,7 @@ def esystem_to_NModes(
 def deuterate_modes(
     normal_modes: list[NormalMode],
     present_mode: bool = False,
-) -> None:
+) -> list[NormalMode]:
     equilibrium_Descarte = normal_modes[0].at
     mass_matrix = build_mass_matrix(equilibrium_Descarte, ATOMIC_MASSES)
     hessian = build_hessian(normal_modes, mass_matrix)
@@ -406,18 +421,23 @@ def deuterate_modes(
     deuterated_mm = build_mass_matrix(equilibrium_Descarte, deuterated_masses)
     deuterated = diagonalize_hessian(hessian, deuterated_mm)
 
-    if present_mode is False:
-        deuterated_nmodes = esystem_to_NModes(deuterated, equilibrium_Descarte)
+    deuterated_nmodes = esystem_to_NModes(deuterated, equilibrium_Descarte)
+
+    if present_mode is True:
+        print_pair_of_eigenvalues(
+            eigensystem.eigenvalues,
+            deuterated.eigenvalues
+        )
+        show_nmodes_matrix(eigensystem)
+        show_nmodes_matrix(deuterated)
         for idx, mode in enumerate(deuterated_nmodes):
             mode_xyz = mode.to_MoleculeXYZ(
                 comment=f'{idx}. Vibrational mode, {mode.frequency:.2f} cm-1,'
-                ' SrOPh-5d',
+                ' deuterated',
             )
             print(mode_xyz)
-    else:
-        print_pair_of_eigenvalues(eigensystem.eigenvalues, deuterated.eigenvalues)
-        show_nmodes_matrix(eigensystem)
-        show_nmodes_matrix(deuterated)
+
+    return deuterated_nmodes
 
 
 def displace_mode(
@@ -471,7 +491,7 @@ def find_nmodes_displacement(
 
 def main():
     xyz_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
-    normal_modes = collect_normal_modes(xyz_path)
+    normal_modes = xyz_file_to_NormalModesList(xyz_path)
     # deuterate_modes(normal_modes, present_mode=True)
     # displace_mode(
     #     normal_modes=normal_modes,

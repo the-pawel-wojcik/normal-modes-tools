@@ -20,33 +20,55 @@ def print_np_vec_with_atoms(
         ))
 
 
-def main():
-    nmodes = nmt.xyz_file_to_NormalModesList(nmodes_xyz_filename)
-    deuterated_nmodes = nmt.deuterate_modes(nmodes)
+def print_gradient_in_normal_modes(
+    gradient: np.typing.NDArray,
+    nmodes: list[nmt.NormalMode],
+) -> None:
+    for mode, grad_comp in zip(nmodes, gradient):
+        print(f'Gradient along mode of freq = {mode.frequency:4.0f}'
+              f': {grad_comp:4.0f}')
 
-    ref_geo = nmodes[0].at
-    mass_matrix = nmt.build_mass_matrix(ref_geo, nmt.ATOMIC_MASSES)
-    nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
 
-
+def gradient_from_json(
+    gradient_json_filename: str
+) -> np.typing.NDArray:
     with open(gradient_json_filename, 'r', encoding='utf-8') as grad_json_file:
         grad_input = json.load(grad_json_file)
 
     dim = 33
     grad_input_np = np.zeros(shape=(dim), dtype=float)
     for idx, component in enumerate(grad_input['gradient']):
-        frequency = component['frequency, cm-1']
         grad_value = component['gradient, cm-1']
         grad_input_np[idx] = grad_value
 
-    with np.printoptions(precision=0, suppress=True):
-        print(grad_input_np)
+    return grad_input_np
+
+
+def main():
+    nmodes = nmt.xyz_file_to_NormalModesList(nmodes_xyz_filename)
+    ref_geo = nmodes[0].at
+    mass_matrix = nmt.build_mass_matrix(ref_geo, nmt.ATOMIC_MASSES)
+    nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
+
+    grad_input_np = gradient_from_json(gradient_json_filename)
+
+    print_gradient_in_normal_modes(grad_input_np, nmodes)
 
     mass_matrix_sqrt = np.sqrt(mass_matrix)
     grad_descartes = mass_matrix_sqrt @ nmodes_matrix @ grad_input_np
 
     print("Gradient in Cartesian coordinates")
     print_np_vec_with_atoms(grad_descartes, ref_geo.atoms)
+
+    deuterated_nmodes = nmt.deuterate_modes(nmodes)
+    deuterated_nmodes_matrix = nmt.build_nmodes_matrix(deuterated_nmodes)
+    deuterated_mm = nmt.build_mass_matrix(ref_geo, nmt.DEUTERATED_MASSES)
+    deuterated_mm_inv_sqrt = nmt.get_mass_inv_sqrt(deuterated_mm)
+    grad_deuterated_nmodes = \
+        deuterated_nmodes_matrix.T @ deuterated_mm_inv_sqrt @ grad_descartes
+
+    print_gradient_in_normal_modes(grad_deuterated_nmodes, deuterated_nmodes)
+
     
 if __name__ == "__main__":
     main()

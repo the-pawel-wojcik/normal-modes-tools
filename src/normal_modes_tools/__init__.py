@@ -6,7 +6,6 @@ import numpy as np
 from numpy import linalg
 from copy import deepcopy
 import matplotlib.pyplot as plt
-import sys
 
 @dataclass
 class AtomVector:
@@ -440,27 +439,6 @@ def deuterate_modes(
     return deuterated_nmodes
 
 
-def displace_mode(
-    normal_modes: list[NormalMode],
-    equilibrium_Descarte: Geometry,
-    mass_matrix: np.typing.NDArray[np.float64],
-) -> None:
-    for displacement in [0.00, 0.01, 0.02, 0.03, 0.04]:
-        displaced_mode = 0
-        displaced = generated_displaced_geometry(
-            which_mode=displaced_mode,
-            displacement=displacement,
-            reference_geometry=equilibrium_Descarte,
-            normal_modes=normal_modes,
-            mass_matrix=mass_matrix,
-        )
-        displaced_xyz = xyz.MoleculeXYZ.from_Geometry(
-            displaced, comment = f'Displaced {displacement} Å√(amu) along'
-            f' mode {displaced_mode}',
-        )
-        print(displaced_xyz)
-
-
 def find_nmodes_displacement(
     start: Geometry,
     end: Geometry,
@@ -493,13 +471,6 @@ def main():
     xyz_path = "~/chemistry/cci/phenoxide/calculations/phenoxide/strontium/vib/dz/findiff/normal_modes.xyz"
     normal_modes = xyz_file_to_NormalModesList(xyz_path)
     # deuterate_modes(normal_modes, present_mode=True)
-    # displace_mode(
-    #     normal_modes=normal_modes,
-    #     equilibrium_Descarte=normal_modes[0].at,
-    #     mass_matrix=build_mass_matrix(normal_modes[0].at, ATOMIC_MASSES),
-    # )
-
-
 
 
 if __name__ == "__main__":

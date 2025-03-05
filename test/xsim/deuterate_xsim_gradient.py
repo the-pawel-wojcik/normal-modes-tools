@@ -16,7 +16,7 @@ def get_args():
     )
     parser.add_argument(
         '--debug',
-        type=bool,
+        help='Print intermediates',
         default=False,
         action='store_true',
     )

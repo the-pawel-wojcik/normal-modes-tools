@@ -2,8 +2,9 @@ import normal_modes_tools as nmt
 import numpy as np
 import json
 
-nmodes_xyz_filename = './inputs/sroph_f0.xyz'
 gradient_json_filename = 'inputs/sroph_at_g0_kappa_a.json'
+nmodes_xyz_fname = 'inputs/sroph_f0.xyz'
+deuterated_nmodes_xyz_fname = 'outputs/sroph-5d_f0.xyz'
 
 
 def print_np_vec_with_atoms(
@@ -45,22 +46,23 @@ def gradient_from_json(
 
 
 def main():
-    nmodes = nmt.xyz_file_to_NormalModesList(nmodes_xyz_filename)
+    nmodes = nmt.xyz_file_to_NormalModesList(nmodes_xyz_fname)
     ref_geo = nmodes[0].at
-    mass_matrix = nmt.build_mass_matrix(ref_geo, nmt.ATOMIC_MASSES)
-    nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
 
     grad_input_np = gradient_from_json(gradient_json_filename)
-
     print_gradient_in_normal_modes(grad_input_np, nmodes)
 
+    mass_matrix = nmt.build_mass_matrix(ref_geo, nmt.ATOMIC_MASSES)
+    nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
     mass_matrix_sqrt = np.sqrt(mass_matrix)
     grad_descartes = mass_matrix_sqrt @ nmodes_matrix @ grad_input_np
 
     print("Gradient in Cartesian coordinates")
     print_np_vec_with_atoms(grad_descartes, ref_geo.atoms)
 
-    deuterated_nmodes = nmt.deuterate_modes(nmodes)
+    deuterated_nmodes = nmt.xyz_file_to_NormalModesList(
+        deuterated_nmodes_xyz_fname
+    )
     deuterated_nmodes_matrix = nmt.build_nmodes_matrix(deuterated_nmodes)
     deuterated_mm = nmt.build_mass_matrix(ref_geo, nmt.DEUTERATED_MASSES)
     deuterated_mm_inv_sqrt = nmt.get_mass_inv_sqrt(deuterated_mm)

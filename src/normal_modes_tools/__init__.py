@@ -203,6 +203,11 @@ def xyz_file_to_NormalModesList(
     nmodes = moleculeXYZList_to_NormalModesList(nmodes_xyz)
     return nmodes
 
+def normalModesList_to_xyz_file(
+    nml: list[NormalMode],
+) -> str:
+    return "\n".join(str(mode) for mode in nml)
+
 
 def normalize_symbol(original: str) -> str:
    all_caps  = original.capitalize()

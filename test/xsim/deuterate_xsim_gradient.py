@@ -108,7 +108,9 @@ def main():
         'gradient': list(),
         'EOM states': gradient_json['EOM states'],
     }
-    for idx, (mode, grad_comp) in enumerate(zip(nmodes, deuterated_gradient)):
+    for idx, (mode, grad_comp) in enumerate(
+        zip(deuterated_nmodes, deuterated_gradient)
+    ):
         outpack['gradient'].append({
             'mode #': idx,
             'frequency, cm-1': mode.frequency,

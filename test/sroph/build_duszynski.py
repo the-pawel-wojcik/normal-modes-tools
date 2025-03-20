@@ -12,11 +12,11 @@ def main():
 
     modes = [
         {
-            'name': 'SrOPh X',
+            'name': r'SrOPh $\tilde{X}$',
             'modes': ground_nmds,
         },
         {
-            'name': 'SrOPh-5d X',
+            'name': r'SrOPh-5d $\tilde{X}$',
             'modes': deuterated_nmds,
         },
     ]

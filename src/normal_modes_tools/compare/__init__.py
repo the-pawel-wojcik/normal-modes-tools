@@ -87,7 +87,8 @@ def show_duszynski(
     figsize = (6, 6)
     if ax is None:
         _, ax = plt.subplots(figsize=figsize, layout='constrained')
-    ax.imshow(np.abs(duszyński))
+    duszyński = ax.imshow(np.abs(duszyński), vmin=0.0, vmax=1.0)
+    plt.colorbar(duszyński, ax=ax, shrink=0.7)
     ax.set_title("Duschinsky matrix")
 
     tick_positions = [i for i in range(len(old_nmds))]

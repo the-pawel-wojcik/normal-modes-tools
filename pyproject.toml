@@ -1,6 +1,6 @@
 [project]
 name = "normal_modes_tools"
-version = "1.0.00"
+version = "1.0.02"
 description = "Tools for working with normal modes"
 readme = "readme.md"
 requires-python = ">=3.13"
@@ -17,3 +17,8 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Homepage = "https://github.com/the-pawel-wojcik/normal-modes-tools"
+Repository = "https://github.com/the-pawel-wojcik/normal-modes-tools.git"
+Issues = "https://github.com/the-pawel-wojcik/normal-modes-tools/issues"

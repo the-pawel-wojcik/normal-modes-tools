@@ -1,7 +1,9 @@
 from __future__ import annotations
-from dataclasses import dataclass
 from normal_modes_tools.geometry import Geometry, AtomVector
 import xyz_parser as xyz
+
+from copy import deepcopy
+from dataclasses import dataclass
 import numpy as np
 
 @dataclass
@@ -17,7 +19,11 @@ class NormalMode:
     def __str__(self) -> str:
         fmt = '-13.8f'
         str_xyz = f"{len(self.displacement)}\n"
-        str_xyz += f"XX. Vibration mode, {self.frequency:.2f} cm-1, SYM\n"
+        str_xyz += f"XX. Vibration mode, {self.frequency:.2f} cm-1,"
+        if self.irrep == "":
+            str_xyz += f' ???\n'  # TODO: use posym if symmetry is unknown
+        else:
+            str_xyz += f' {self.irrep}\n'
         for geo, nmd in zip(self.at.atoms, self.displacement):
             assert geo.name == nmd.name
             str_xyz += f"{geo.name:<3}"

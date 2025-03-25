@@ -2,10 +2,10 @@ from normal_modes_tools import NormalMode
 
 irrep_to_order = {
     "C2v": {
-        "A1": 0,
-        "A2": 1,
-        "B1": 2,
-        "B2": 3,
+        "a1": 0,
+        "a2": 1,
+        "b1": 2,
+        "b2": 3,
     }, # From Herzberg's Book Table 13
 }
 
@@ -13,7 +13,7 @@ irrep_to_order = {
 def sort_Mulliken(
     mode: NormalMode,
     point_group: str = "C2v",
-    irrep: str = "A1",
+    irrep: str = "a1",
 ) -> tuple[int, float]:
     """ A key for sorting a list of `NormalMode` objects by the order suggested
     in Mulliken's convention [1]. Sort the modes first by the irrep, and then
@@ -28,7 +28,7 @@ def sort_Mulliken(
     if mode.irrep != "":
         irrep = mode.irrep
 
-    irrep_position = irrep_to_order[point_group][irrep]
+    irrep_position = irrep_to_order[point_group][irrep.lower()]
 
     return irrep_position, -mode.frequency
 

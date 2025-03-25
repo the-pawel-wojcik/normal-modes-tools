@@ -84,22 +84,22 @@ def show_duszynski(
     old_nmds_matrix = nmt.build_nmodes_matrix(old_nmds)
     new_nmds_matrix = nmt.build_nmodes_matrix(new_nmds)
     duszyński = new_nmds_matrix.T @ old_nmds_matrix
-    figsize = (6, 6)
     if ax is None:
+        figsize = (6, 6)
         _, ax = plt.subplots(figsize=figsize, layout='constrained')
     duszyński = ax.imshow(np.abs(duszyński), vmin=0.0, vmax=1.0)
     plt.colorbar(duszyński, ax=ax, shrink=0.7)
-    ax.set_title("Duschinsky matrix")
+    ax.set_title("Duszyński matrix")
 
     tick_positions = [i for i in range(len(old_nmds))]
     old_freqs = [f'{mode.frequency:.0f}' for mode in old_nmds]
     ax.xaxis.set_ticks(ticks=tick_positions, labels=old_freqs, rotation=90)
-    ax.yaxis.set_label_text("Old normal modes")
+    ax.xaxis.set_label_text("Original normal modes")
 
     tick_positions = [i for i in range(len(new_nmds))]
     new_freqs = [f'{mode.frequency:.0f}' for mode in new_nmds]
     ax.yaxis.set_ticks(ticks=tick_positions, labels=new_freqs)
-    ax.yaxis.set_label_text("New normal modes")
+    ax.yaxis.set_label_text("Compared normal modes")
     plt.show()
     return ax
 

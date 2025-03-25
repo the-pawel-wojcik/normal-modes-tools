@@ -7,6 +7,7 @@ from .geometry import Geometry
 from .normal_mode import NormalMode, xyz_file_to_NormalModesList
 from .atomic_masses import *
 from . import mulliken
+from .compare import show_duszynski
 
 
 def normalize_symbol(original: str) -> str:
@@ -287,6 +288,12 @@ def get_args() -> argparse.Namespace:
         default=False,
         action='store_true',
     )
+    parser.add_argument(
+        '--compare',
+        help='Pass second set of normal modes. Compare then by drawing a '
+        'Duszyński matrix (matrix of normal mode\'s inner products).',
+        type=str,
+    )
     args = parser.parse_args()
     return args
 
@@ -301,6 +308,11 @@ def main():
 
     if args.Mulliken is True:
         mulliken.pretty_print(normal_modes)
+
+    if args.compare is not None:
+        second_normal_modes = xyz_file_to_NormalModesList(args.compare)
+        show_duszynski(normal_modes, second_normal_modes)
+        
         
 if __name__ == "__main__":
     main()

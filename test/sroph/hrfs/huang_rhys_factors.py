@@ -2,19 +2,14 @@ import matplotlib
 import matplotlib.ticker
 import matplotlib.pyplot as plt
 import normal_modes_tools as nmt
+from normal_modes_tools.conversions import (
+    c_SI, inv_cm_to_inv_m, aa_to_m, amu_to_kg, h_SI, inv_m_to_inv_cm,
+)
 from normal_modes_tools.huang_rhys_factors import huang_rhys_factor
 import numpy as np
 import prettytable
 import xyz_parser as xyz
 
-
-amu_to_kg = 1.66053906892e-27
-aa_to_m = 1e-10
-c_SI = 2.99792458e8
-inv_cm_to_inv_m = 100
-h_SI = 6.62607015e-34
-
-inv_m_to_inv_cm = 0.01
 
 def huang_rhys_factor_test():
     mode_wavenumber_cm = 70.0

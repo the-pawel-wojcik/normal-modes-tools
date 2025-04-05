@@ -1,14 +1,9 @@
 from xyz_parser import dataclass
+from normal_modes_tools.conversions import (
+    c_SI, inv_cm_to_inv_m, aa_to_m, amu_to_kg, h_SI,
+)
 from normal_modes_tools.huang_rhys_factors import huang_rhys_factor
 import numpy as np
-
-amu_to_kg = 1.66053906892e-27
-aa_to_m = 1e-10
-c_SI = 2.99792458e8
-inv_cm_to_inv_m = 100
-h_SI = 6.62607015e-34
-
-inv_m_to_inv_cm = 0.01
 
 
 @dataclass

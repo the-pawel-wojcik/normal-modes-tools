@@ -4,8 +4,13 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    ground_nmds_path = "xyz/SrOPh_normal_modes.xyz"
-    deuterated_path = "xyz/SrOPh-5d_normal_modes.xyz"
+    # Frequency ordered modes
+    ground_nmds_path = "../xyz/SrOPh_normal_modes.xyz"
+    deuterated_path = "../xyz/SrOPh-5d_normal_modes.xyz"
+
+    # Mulliken ordered modes
+    ground_nmds_path = '../mulliken_order/output/SrOPh_nmodes_Mulliken.xyz'
+    deuterated_path = '../mulliken_order/output/SrOPh-5d_nmodes_Mulliken.xyz'
 
     ground_nmds = nmt.xyz_file_to_NormalModesList(ground_nmds_path)
     deuterated_nmds = nmt.xyz_file_to_NormalModesList(deuterated_path)
@@ -16,7 +21,7 @@ def main():
             'modes': ground_nmds,
         },
         {
-            'name': r'SrOPh-5d $\tilde{X}$',
+            'name': r'SrOPh-d$_5$ $\tilde{X}$',
             'modes': deuterated_nmds,
         },
     ]
@@ -24,15 +29,16 @@ def main():
     for mode_item in modes:
         print(f'Normal modes of {mode_item['name']} in the basis of normal'
               ' modes of SrOPh X')
-        print("idx  SrOPh X,  SrOPh-5d X - SrOPh X")
+        print("idx  SrOPh X,  SrOPh-d5 X - SrOPh X")
         compare.mode_frequencies(ground_nmds, mode_item['modes'])
         compare.mode_alignment(ground_nmds, mode_item['modes'])
         figsize = (6, 6)
         fig, ax = plt.subplots(figsize=figsize, layout='constrained')
         ax = compare.show_duszynski(ground_nmds, mode_item['modes'], ax=ax)
-        ax.xaxis.set_label_text(f"Modes of SrOPh X")
-        ax.yaxis.set_label_text(f"Modes of {mode_item['name']}")
-        fig.savefig('SrOPh_X_nmodes_and_SrOPh-5d_X_nmodes.pdf')
+        ax.xaxis.set_label_text(r'Modes of SrOPh $\tilde{X}$')
+        ax.yaxis.set_label_text(f'Modes of {mode_item['name']}')
+        # fig.savefig('freq_ordered_matrix.pdf')
+        fig.savefig('Mulliken_ordered_matrix.pdf')
         
 
 

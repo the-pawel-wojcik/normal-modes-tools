@@ -1,11 +1,11 @@
-from typing import overload
 import matplotlib
 import matplotlib.ticker
+import matplotlib.pyplot as plt
 import normal_modes_tools as nmt
-import xyz_parser as xyz
+from normal_modes_tools.huang_rhys_factors import huang_rhys_factor
 import numpy as np
 import prettytable
-import matplotlib.pyplot as plt
+import xyz_parser as xyz
 
 
 amu_to_kg = 1.66053906892e-27
@@ -16,46 +16,13 @@ h_SI = 6.62607015e-34
 
 inv_m_to_inv_cm = 0.01
 
-
-@overload
-def huang_rhys_factor(
-    dq_aa_sqrt_amu: float,
-    mode_wavenumber_cm: float,
-) -> float: ...
-
-
-@overload
-def huang_rhys_factor(
-    dq_aa_sqrt_amu: np.typing.NDArray,
-    mode_wavenumber_cm: float,
-) -> np.typing.NDArray: ...
-
-
-def huang_rhys_factor(
-    dq_aa_sqrt_amu: float | np.typing.NDArray,
-    mode_wavenumber_cm: float,
-) -> float | np.typing.NDArray:
-    """ Find the Huang-Rhys factors for a displacement of `dq_aa_sqrt_amu`
-    along normal with a harmonic wavenumber `mode_wavenumber_cm`. 
-
-    The input displacement is allowed to be a list too because Paweł needed it
-    to make a pretty plot.
-    """
-    hrf = 0.5 * (
-        (2 * np.pi)**2 * c_SI * mode_wavenumber_cm * inv_cm_to_inv_m 
-        * dq_aa_sqrt_amu**2 * aa_to_m**2  * amu_to_kg
-        / h_SI
-        - 1
-    )
-    return hrf
-
 def huang_rhys_factor_test():
     mode_wavenumber_cm = 70.0
 
     print(f'ω = {mode_wavenumber_cm:.0f} cm-1')
 
     print('The first 5 energy levels of the harmonic oscillator:')
-    levels = [0.5 * (lvl * mode_wavenumber_cm + 0.5) for lvl in range(5)]
+    levels = [mode_wavenumber_cm * (lvl  + 0.5) for lvl in range(5)]
     print('')
     print('\t'.join([f'{lvl:>4d}' for lvl in range(5)]))
     print('\t'.join([f'{lvl:4.0f}' for lvl in levels]))
@@ -161,8 +128,6 @@ def find_nmodes_displacement_test():
 
 
 def main():
-    """ TODO: Move the huang_rhys_factor function to the main library. Leave
-    the remainder here as a test. """
     huang_rhys_factor_test()
     huang_rhys_factor_plot()
 

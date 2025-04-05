@@ -1,4 +1,5 @@
 from xyz_parser import dataclass
+from normal_modes_tools.huang_rhys_factors import huang_rhys_factor
 import numpy as np
 
 amu_to_kg = 1.66053906892e-27
@@ -9,17 +10,6 @@ h_SI = 6.62607015e-34
 
 inv_m_to_inv_cm = 0.01
 
-def huang_rhys_factor(
-    dq_aa_sqrt_amu: float,
-    mode_wavenumber_cm: float,
-) -> float:
-    hrf = 0.5 * (
-        (2 * np.pi)**2 * c_SI * mode_wavenumber_cm * inv_cm_to_inv_m 
-        * dq_aa_sqrt_amu**2 * aa_to_m**2  * amu_to_kg
-        / h_SI
-        - 1
-    )
-    return hrf
 
 @dataclass
 class Displacement:

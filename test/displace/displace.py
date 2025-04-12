@@ -27,11 +27,12 @@ def displace_along_mode(
 def main():
     xyz_path = "inputs/SrOPh_f0.xyz"
     normal_modes = nmt.xyz_file_to_NormalModesList(xyz_path)
-    mass_matrix = nmt.build_mass_matrix(normal_modes[0].at, nmt.ATOMIC_MASSES)
+    geo = normal_modes[0].at
+    mass_matrix = geo.get_mass_matrix(nmt.ATOMIC_MASSES)
 
     displace_along_mode(
         normal_modes=normal_modes,
-        equilibrium_Descarte=normal_modes[0].at,
+        equilibrium_Descarte=geo,
         mass_matrix=mass_matrix,
         displaced_mode=10,
     )

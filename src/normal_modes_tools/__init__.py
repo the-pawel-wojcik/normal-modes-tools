@@ -10,26 +10,6 @@ from . import mulliken
 from .compare import show_duszynski
 
 
-def normalize_symbol(original: str) -> str:
-   all_caps  = original.capitalize()
-   first_cap = all_caps[0] + all_caps[1:].lower()
-   return first_cap
-
-
-def build_mass_matrix(
-    geometry: Geometry,
-    masses_dict: dict[str, float]
-) -> np.typing.NDArray[np.float64]:
-    dim = 3 * len(geometry.atoms)
-    diagonal = np.zeros(shape=dim, dtype=np.float64)
-    for idx, atom in enumerate(geometry.atoms):
-        atom_mass = np.float64(masses_dict[normalize_symbol(atom.name)])
-        diagonal[3 * idx: 3 * idx + 3] = [atom_mass for _ in range(3)]
-    mass_matrix = np.zeros(shape=(dim, dim), dtype=np.float64)
-    np.fill_diagonal(mass_matrix, diagonal)
-    return mass_matrix
-
-
 def build_nmodes_matrix(
     normal_modes: list[NormalMode],
 ) -> np.typing.NDArray[np.float64]:
@@ -217,13 +197,11 @@ def deuterate_modes(
     present_mode: bool = False,
 ) -> list[NormalMode]:
     equilibrium_Descarte = normal_modes[0].at
-    mass_matrix = build_mass_matrix(equilibrium_Descarte, ATOMIC_MASSES)
+    mass_matrix = equilibrium_Descarte.get_mass_matrix(ATOMIC_MASSES)
     hessian = build_hessian(normal_modes, mass_matrix)
     eigensystem = diagonalize_hessian(hessian, mass_matrix) 
 
-    deuterated_masses = deepcopy(ATOMIC_MASSES)
-    deuterated_masses['H'] = 2.0
-    deuterated_mm = build_mass_matrix(equilibrium_Descarte, deuterated_masses)
+    deuterated_mm = equilibrium_Descarte.get_mass_matrix(DEUTERATED_MASSES)
     deuterated = diagonalize_hessian(hessian, deuterated_mm)
 
     deuterated_nmodes = esystem_to_NModes(deuterated, equilibrium_Descarte)

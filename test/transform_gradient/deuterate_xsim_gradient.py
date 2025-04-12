@@ -1,8 +1,8 @@
+import argparse
+import json
+
 import normal_modes_tools as nmt
 import numpy as np
-import json
-import argparse
-
 
 gradient_json_filename = 'inputs/sroph_at_g0_kappa_a.json'
 nmodes_xyz_fname = 'inputs/sroph_f0.xyz'
@@ -26,7 +26,7 @@ def get_args():
 
 def print_np_vec_with_atoms(
     vec: np.typing.NDArray,
-    atoms: list[nmt.AtomVector],
+    atoms: list[nmt.geometry.AtomVector],
 ) -> None:
     natoms = len(atoms)
     assert (len(vec) == natoms*3)
@@ -75,12 +75,13 @@ def main():
     nmodes = nmt.xyz_file_to_NormalModesList(nmodes_xyz_fname)
     ref_geo = nmodes[0].at
 
+    # Read a gradient and transform it into cartesian coordinates
     gradient_json = collect_gradient_from_json(args.gradient_fname)
     grad_input_np = gradient_json_to_numpy(gradient_json)
     if DEBUG:
         print_gradient_in_normal_modes(grad_input_np, nmodes)
 
-    mass_matrix = nmt.build_mass_matrix(ref_geo, nmt.ATOMIC_MASSES)
+    mass_matrix = ref_geo.get_mass_matrix(nmt.ATOMIC_MASSES)
     nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
     mass_matrix_sqrt = np.sqrt(mass_matrix)
     grad_descartes = mass_matrix_sqrt @ nmodes_matrix @ grad_input_np
@@ -89,11 +90,12 @@ def main():
         print("Gradient in Cartesian coordinates")
         print_np_vec_with_atoms(grad_descartes, ref_geo.atoms)
 
+    # Transform the cartesian gradient into a deuterated normal coordinates
     deuterated_nmodes = nmt.xyz_file_to_NormalModesList(
         deuterated_nmodes_xyz_fname
     )
     deuterated_nmodes_matrix = nmt.build_nmodes_matrix(deuterated_nmodes)
-    deuterated_mm = nmt.build_mass_matrix(ref_geo, nmt.DEUTERATED_MASSES)
+    deuterated_mm = ref_geo.get_mass_matrix(nmt.DEUTERATED_MASSES)
     deuterated_mm_inv_sqrt = nmt.get_mass_inv_sqrt(deuterated_mm)
     deuterated_gradient = \
         deuterated_nmodes_matrix.T @ deuterated_mm_inv_sqrt @ grad_descartes
@@ -104,6 +106,7 @@ def main():
             nmodes=deuterated_nmodes,
         )
 
+    # Print deuterated gradient
     outpack = {
         'gradient': list(),
         'EOM states': gradient_json['EOM states'],

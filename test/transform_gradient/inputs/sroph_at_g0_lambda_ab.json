@@ -1,0 +1,193 @@
+{
+  "gradient": [
+    {
+      "mode #": 7,
+      "frequency, cm-1": 64.77,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 8,
+      "frequency, cm-1": 84.38,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 9,
+      "frequency, cm-1": 239.06,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 10,
+      "frequency, cm-1": 273.3,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 11,
+      "frequency, cm-1": 425.81,
+      "gradient, cm-1": -7.94879
+    },
+    {
+      "mode #": 12,
+      "frequency, cm-1": 448.9,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 13,
+      "frequency, cm-1": 532.08,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 14,
+      "frequency, cm-1": 608.38,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 15,
+      "frequency, cm-1": 628.09,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 16,
+      "frequency, cm-1": 688.7,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 17,
+      "frequency, cm-1": 770.79,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 18,
+      "frequency, cm-1": 851.29,
+      "gradient, cm-1": 17.29708
+    },
+    {
+      "mode #": 19,
+      "frequency, cm-1": 885.46,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 20,
+      "frequency, cm-1": 903.33,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 21,
+      "frequency, cm-1": 983.14,
+      "gradient, cm-1": 8.30531
+    },
+    {
+      "mode #": 22,
+      "frequency, cm-1": 983.67,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 23,
+      "frequency, cm-1": 1013.79,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 24,
+      "frequency, cm-1": 1052.12,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 25,
+      "frequency, cm-1": 1093.06,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 26,
+      "frequency, cm-1": 1163.5,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 27,
+      "frequency, cm-1": 1182.16,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 28,
+      "frequency, cm-1": 1294.59,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 29,
+      "frequency, cm-1": 1341.26,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 30,
+      "frequency, cm-1": 1349.33,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 31,
+      "frequency, cm-1": 1494.64,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 32,
+      "frequency, cm-1": 1548.97,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 33,
+      "frequency, cm-1": 1654.76,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 34,
+      "frequency, cm-1": 1683.54,
+      "gradient, cm-1": 0.0
+    },
+    {
+      "mode #": 35,
+      "frequency, cm-1": 3196.8,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 36,
+      "frequency, cm-1": 3201.95,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 37,
+      "frequency, cm-1": 3216.17,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 38,
+      "frequency, cm-1": 3219.96,
+      "gradient, cm-1": -0.0
+    },
+    {
+      "mode #": 39,
+      "frequency, cm-1": 3235.23,
+      "gradient, cm-1": 0.0
+    }
+  ],
+  "EOM states": [
+    {
+      "model": "EOMEE-CCSD",
+      "irrep": {
+        "#": 2
+      },
+      "energy": {
+        "total": {
+          "au": -3402.93198752802
+        }
+      }
+    },
+    {
+      "model": "EOMEE-CCSD",
+      "irrep": {
+        "#": 3
+      },
+      "energy": {
+        "total": {
+          "au": -3402.9312950156636
+        }
+      }
+    }
+  ]
+}

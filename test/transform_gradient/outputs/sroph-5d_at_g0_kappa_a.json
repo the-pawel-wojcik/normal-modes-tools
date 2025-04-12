@@ -2,167 +2,167 @@
   "gradient": [
     {
       "mode #": 0,
-      "frequency, cm-1": 64.77,
+      "frequency, cm-1": 62.06,
       "gradient, cm-1": 6.661338147750939E-16
     },
     {
       "mode #": 1,
-      "frequency, cm-1": 84.38,
+      "frequency, cm-1": 81.18,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 2,
-      "frequency, cm-1": 239.06,
+      "frequency, cm-1": 234.52,
       "gradient, cm-1": -104.64651409564397
     },
     {
       "mode #": 3,
-      "frequency, cm-1": 273.3,
+      "frequency, cm-1": 259.08,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 4,
-      "frequency, cm-1": 425.81,
+      "frequency, cm-1": 373.45,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 5,
-      "frequency, cm-1": 448.9,
+      "frequency, cm-1": 429.7,
       "gradient, cm-1": 1.1102230246251565E-16
     },
     {
       "mode #": 6,
-      "frequency, cm-1": 532.08,
+      "frequency, cm-1": 456.35,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 7,
-      "frequency, cm-1": 608.38,
+      "frequency, cm-1": 567.75,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 8,
-      "frequency, cm-1": 628.09,
+      "frequency, cm-1": 589.85,
       "gradient, cm-1": 56.01051604809248
     },
     {
       "mode #": 9,
-      "frequency, cm-1": 688.7,
+      "frequency, cm-1": 602.52,
       "gradient, cm-1": 1.1102230246251565E-16
     },
     {
       "mode #": 10,
-      "frequency, cm-1": 770.79,
+      "frequency, cm-1": 643.3,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 11,
-      "frequency, cm-1": 851.29,
+      "frequency, cm-1": 663.93,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 12,
-      "frequency, cm-1": 885.46,
+      "frequency, cm-1": 775.62,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 13,
-      "frequency, cm-1": 903.33,
+      "frequency, cm-1": 792.34,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 14,
-      "frequency, cm-1": 983.14,
+      "frequency, cm-1": 795.97,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 15,
-      "frequency, cm-1": 983.67,
+      "frequency, cm-1": 797.39,
       "gradient, cm-1": -57.198997689169545
     },
     {
       "mode #": 16,
-      "frequency, cm-1": 1013.79,
+      "frequency, cm-1": 819.88,
       "gradient, cm-1": 8.881784197001252E-16
     },
     {
       "mode #": 17,
-      "frequency, cm-1": 1052.12,
+      "frequency, cm-1": 851.87,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 18,
-      "frequency, cm-1": 1093.06,
+      "frequency, cm-1": 853.05,
       "gradient, cm-1": 37.11599880647738
     },
     {
       "mode #": 19,
-      "frequency, cm-1": 1163.5,
+      "frequency, cm-1": 903.1,
       "gradient, cm-1": 54.25796864019885
     },
     {
       "mode #": 20,
-      "frequency, cm-1": 1182.16,
+      "frequency, cm-1": 974.68,
       "gradient, cm-1": -3.2945873017184044
     },
     {
       "mode #": 21,
-      "frequency, cm-1": 1294.59,
+      "frequency, cm-1": 1048.15,
       "gradient, cm-1": -4.440892098500626E-16
     },
     {
       "mode #": 22,
-      "frequency, cm-1": 1341.26,
+      "frequency, cm-1": 1268.49,
       "gradient, cm-1": 95.58251194276082
     },
     {
       "mode #": 23,
-      "frequency, cm-1": 1349.33,
+      "frequency, cm-1": 1289.95,
       "gradient, cm-1": 1.0824674490095276E-15
     },
     {
       "mode #": 24,
-      "frequency, cm-1": 1494.64,
+      "frequency, cm-1": 1385.23,
       "gradient, cm-1": 2.9993368899638995E-15
     },
     {
       "mode #": 25,
-      "frequency, cm-1": 1548.97,
+      "frequency, cm-1": 1472.4,
       "gradient, cm-1": 107.11626362221831
     },
     {
       "mode #": 26,
-      "frequency, cm-1": 1654.76,
+      "frequency, cm-1": 1620.26,
       "gradient, cm-1": 0.0
     },
     {
       "mode #": 27,
-      "frequency, cm-1": 1683.54,
+      "frequency, cm-1": 1653.28,
       "gradient, cm-1": -67.4684121776447
     },
     {
       "mode #": 28,
-      "frequency, cm-1": 3196.8,
+      "frequency, cm-1": 2361.02,
       "gradient, cm-1": -5.382516196439141
     },
     {
       "mode #": 29,
-      "frequency, cm-1": 3201.95,
+      "frequency, cm-1": 2370.26,
       "gradient, cm-1": 4.440892098500626E-16
     },
     {
       "mode #": 30,
-      "frequency, cm-1": 3216.17,
+      "frequency, cm-1": 2385.14,
       "gradient, cm-1": -2.564306598385028
     },
     {
       "mode #": 31,
-      "frequency, cm-1": 3219.96,
+      "frequency, cm-1": 2393.1,
       "gradient, cm-1": -4.440892098500626E-16
     },
     {
       "mode #": 32,
-      "frequency, cm-1": 3235.23,
+      "frequency, cm-1": 2407.84,
       "gradient, cm-1": 0.779865792236726
     }
   ],

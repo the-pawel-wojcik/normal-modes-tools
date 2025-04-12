@@ -2,6 +2,7 @@ import matplotlib
 import matplotlib.ticker
 import matplotlib.pyplot as plt
 import normal_modes_tools as nmt
+from normal_modes_tools.decomposition import find_nmodes_displacement
 from normal_modes_tools.conversions import (
     c_SI, inv_cm_to_inv_m, aa_to_m, amu_to_kg, h_SI, inv_m_to_inv_cm,
 )
@@ -109,7 +110,7 @@ def find_nmodes_displacement_test():
     initial_geometry = nmt.Geometry.from_MoleculeXYZ(all_geometries[0])
     for geo_idx, geometry_xyz in enumerate(all_geometries):
         target_geometry = nmt.Geometry.from_MoleculeXYZ(geometry_xyz)
-        delta_nmodes = nmt.find_nmodes_displacement(
+        delta_nmodes = find_nmodes_displacement(
             start=initial_geometry,
             end=target_geometry,
             nmodes=ground_nmds,

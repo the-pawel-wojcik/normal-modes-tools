@@ -1,3 +1,6 @@
+""" Tools for a comparison of two sets of normal modes.
+See, `mode_alignment` or `show_duszynski`.
+"""
 import argparse
 import normal_modes_tools as nmt
 import matplotlib.pyplot as plt

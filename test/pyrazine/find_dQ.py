@@ -1,4 +1,5 @@
 import normal_modes_tools as nmt
+from normal_modes_tools.decomposition import find_nmodes_displacement
 
 def main():
     ground_path = './inputs/ccsd-ano1-X.xyz'
@@ -10,7 +11,7 @@ def main():
     ground_geo = ground_nmds[0].at
     b3u_geo = b3u_nmds[0].at
 
-    dqs = nmt.find_nmodes_displacement(ground_geo, b3u_geo, ground_nmds)
+    dqs = find_nmodes_displacement(ground_geo, b3u_geo, ground_nmds)
     for idx, (dq, mode) in enumerate(zip(dqs, ground_nmds)):
         print(f'{idx:2d} ({mode.frequency:4.0f}) {dq:6.2f}')
 

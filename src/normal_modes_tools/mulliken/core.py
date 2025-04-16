@@ -31,10 +31,3 @@ def sort_Mulliken(
     irrep_position = irrep_to_order[point_group][irrep.lower()]
 
     return irrep_position, -mode.frequency
-
-
-def pretty_print(nmodes: list[NormalMode]):
-    nmodes.sort(key=sort_Mulliken)
-    for idx, mode in enumerate(nmodes, start=1):
-        print(f'{idx:3d}({mode.irrep.lower()}): {mode.frequency:>4.0f}')
-    

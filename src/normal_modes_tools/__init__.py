@@ -8,6 +8,7 @@ from .normal_mode import NormalMode, xyz_file_to_NormalModesList
 from .atomic_masses import *
 from . import mulliken
 from .compare import show_duszynski
+from .printing import pretty_print
 
 
 def build_nmodes_matrix(
@@ -227,8 +228,20 @@ def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('xyz_file', help='File with normal modes')
     parser.add_argument(
+        '--compare',
+        help='Pass second set of normal modes. Compare then by drawing a '
+        'Duszyński matrix (matrix of normal mode\'s inner products).',
+        type=str,
+    )
+    parser.add_argument(
         '--deuterate',
         help='Print deuterated normal modes',
+        default=False,
+        action='store_true',
+    )
+    parser.add_argument(
+        '--list',
+        help='Print normal modes with their frequencies.',
         default=False,
         action='store_true',
     )
@@ -237,12 +250,6 @@ def get_args() -> argparse.Namespace:
         help='Print normal modes using the Mulliken\'s convention.',
         default=False,
         action='store_true',
-    )
-    parser.add_argument(
-        '--compare',
-        help='Pass second set of normal modes. Compare then by drawing a '
-        'Duszyński matrix (matrix of normal mode\'s inner products).',
-        type=str,
     )
     args = parser.parse_args()
     return args
@@ -253,15 +260,18 @@ def main():
     xyz_path = args.xyz_file
     normal_modes = xyz_file_to_NormalModesList(xyz_path)
 
-    if args.deuterate is True:
-        deuterate_modes(normal_modes, present_mode=True)
-
-    if args.Mulliken is True:
-        mulliken.pretty_print(normal_modes)
-
     if args.compare is not None:
         second_normal_modes = xyz_file_to_NormalModesList(args.compare)
         show_duszynski(normal_modes, second_normal_modes)
+
+    if args.deuterate is True:
+        deuterate_modes(normal_modes, present_mode=True)
+
+    if args.list is True:
+        pretty_print(normal_modes)
+
+    if args.Mulliken is True:
+        pretty_print(normal_modes, sort_key=mulliken.sort_Mulliken)
         
         
 if __name__ == "__main__":

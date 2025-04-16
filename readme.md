@@ -2,6 +2,13 @@
 Python tools helpful in working with normal modes.
 
 ## Capabilities
+- List normal modes and their frequencies
+```bash
+# Works only if the comment line in the xyz files has the following format
+# 0. Vibration mode, 64.77 cm-1, B1
+# i.e., frequency is the fourth whitespace-separated item of the comment line
+python -m normal_modes_tool --list nmodes.xyz
+```
 - Displace the molecular geometry along a selected normal mode, see
   `test/displace/displace.py`.
 - Compare two sets of normal modes and their harmonic frequencies, including

@@ -11,6 +11,7 @@ class Displacement:
 
 
 def main():
+    # values come from the ccsd-ano1 parallel ezfcf
     geometry_shifts = [
         Displacement(name='5', dq=-0.251, wavenumber=618.13),
         Displacement(name='4', dq=0.039, wavenumber=1069.15),

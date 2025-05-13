@@ -7,6 +7,16 @@ irrep_to_order = {
         "b1": 2,
         "b2": 3,
     }, # From Herzberg's Book Table 13
+    "D2h": {
+        "ag": 0,
+        "au": 1,
+        "b1g": 2,
+        "b1u": 3,
+        "b2g": 4,
+        "b2u": 5,
+        "b3g": 6,
+        "b3u": 7,
+    }, # From Herzberg's Book Table 14
 }
 
 

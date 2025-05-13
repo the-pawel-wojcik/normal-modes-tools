@@ -240,6 +240,12 @@ def get_args() -> argparse.Namespace:
         action='store_true',
     )
     parser.add_argument(
+        '--latex',
+        help='Use latex when printing output.',
+        default=False,
+        action='store_true',
+    )
+    parser.add_argument(
         '--list',
         help='Print normal modes with their frequencies.',
         default=False,
@@ -268,7 +274,8 @@ def main():
         deuterate_modes(normal_modes, present_mode=True)
 
     if args.list is True:
-        pretty_print(normal_modes)
+        latex = args.latex
+        pretty_print(normal_modes, latex=latex)
 
     if args.Mulliken is True:
         pretty_print(normal_modes, sort_key=mulliken.sort_Mulliken)

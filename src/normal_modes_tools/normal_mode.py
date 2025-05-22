@@ -1,10 +1,13 @@
 from __future__ import annotations
-from normal_modes_tools.geometry import Geometry, AtomVector
-import xyz_parser as xyz
 
 from copy import deepcopy
 from dataclasses import dataclass
+
+from normal_modes_tools.geometry import Geometry, AtomVector
 import numpy as np
+from numpy.typing import NDArray
+import xyz_parser as xyz
+
 
 @dataclass
 class NormalMode:
@@ -36,7 +39,7 @@ class NormalMode:
 
         return str_xyz
 
-    def to_numpy(self) -> np.typing.NDArray[np.float64]:
+    def to_numpy(self) -> NDArray[np.float64]:
         array = np.zeros(shape=3 * len(self.displacement), dtype=np.float64)
         for idx, atom in enumerate(self.displacement):
             array[3 * idx: 3 * idx + 3] = deepcopy(atom.xyz)
@@ -53,7 +56,7 @@ class NormalMode:
     def from_numpy(
         cls,
         frequency: float,
-        vector: np.typing.NDArray[np.float64],
+        vector: NDArray[np.float64],
         geometry: Geometry,
         atomic_masses_list: list[float] | None = None,
     ) -> NormalMode:
@@ -176,3 +179,28 @@ def normalModesList_to_xyz_file(
     nml: list[NormalMode],
 ) -> str:
     return "\n".join(str(mode) for mode in nml)
+
+
+def build_nmodes_matrix(
+    normal_modes: list[NormalMode],
+) -> NDArray[np.float64]:
+    """ Eigenvectors of the mass-weighted Hessian form columns. """
+
+    len_nm = len(normal_modes)
+    if len_nm == 0:
+        raise RuntimeError("No normal modes for building the matrix.")
+
+    dim = 3 * len(normal_modes[0].at.atoms)
+    nmodes_matrix = np.zeros(
+        shape=(dim, len_nm),
+        dtype=np.float64,
+    )
+
+    for column, mode in enumerate(normal_modes):
+        nmodes_matrix[:, column] = mode.to_numpy()
+        # for atom_idx, atom in enumerate(mode.displacement):
+        #     for cart_idx in range(3):
+        #         row = atom_idx * 3 + cart_idx
+        #         nmodes_matrix[row, column] = np.float64(atom.xyz[cart_idx])
+
+    return nmodes_matrix

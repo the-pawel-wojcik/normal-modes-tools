@@ -1,6 +1,4 @@
 """ Data storage module with one helper function. """
-def normalize_symbol(original: str) -> str:
-    return original[0].upper() + original[1:].lower()
 
 
 ATOMIC_MASSES = {

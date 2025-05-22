@@ -3,6 +3,10 @@ import json
 
 import normal_modes_tools as nmt
 import numpy as np
+from numpy.typing import NDArray
+from normal_modes_tools.normal_mode import build_nmodes_matrix
+from normal_modes_tools.util import get_mass_inv_sqrt
+from normal_modes_tools.geometry import AtomVector
 
 gradient_json_filename = 'inputs/sroph_at_g0_kappa_a.json'
 nmodes_xyz_fname = 'inputs/sroph_f0.xyz'
@@ -25,8 +29,8 @@ def get_args():
 
 
 def print_np_vec_with_atoms(
-    vec: np.typing.NDArray,
-    atoms: list[nmt.geometry.AtomVector],
+    vec: NDArray,
+    atoms: list[AtomVector],
 ) -> None:
     natoms = len(atoms)
     assert (len(vec) == natoms*3)
@@ -39,7 +43,7 @@ def print_np_vec_with_atoms(
 
 
 def print_gradient_in_normal_modes(
-    gradient: np.typing.NDArray,
+    gradient: NDArray,
     nmodes: list[nmt.NormalMode],
 ) -> None:
     for mode, grad_comp in zip(nmodes, gradient):
@@ -57,7 +61,7 @@ def collect_gradient_from_json(
 
 def gradient_json_to_numpy(
     gradient_json: dict,
-) -> np.typing.NDArray:
+) -> NDArray:
 
     dim = len(gradient_json['gradient'])
 
@@ -82,7 +86,7 @@ def main():
         print_gradient_in_normal_modes(grad_input_np, nmodes)
 
     mass_matrix = ref_geo.get_mass_matrix(nmt.ATOMIC_MASSES)
-    nmodes_matrix = nmt.build_nmodes_matrix(nmodes)
+    nmodes_matrix = build_nmodes_matrix(nmodes)
     mass_matrix_sqrt = np.sqrt(mass_matrix)
     grad_descartes = mass_matrix_sqrt @ nmodes_matrix @ grad_input_np
 
@@ -94,9 +98,9 @@ def main():
     deuterated_nmodes = nmt.xyz_file_to_NormalModesList(
         deuterated_nmodes_xyz_fname
     )
-    deuterated_nmodes_matrix = nmt.build_nmodes_matrix(deuterated_nmodes)
+    deuterated_nmodes_matrix = build_nmodes_matrix(deuterated_nmodes)
     deuterated_mm = ref_geo.get_mass_matrix(nmt.DEUTERATED_MASSES)
-    deuterated_mm_inv_sqrt = nmt.get_mass_inv_sqrt(deuterated_mm)
+    deuterated_mm_inv_sqrt = get_mass_inv_sqrt(deuterated_mm)
     deuterated_gradient = \
         deuterated_nmodes_matrix.T @ deuterated_mm_inv_sqrt @ grad_descartes
 

@@ -2,17 +2,21 @@ from normal_modes_tools.geometry import Geometry
 from normal_modes_tools import NormalMode, build_nmodes_matrix
 from normal_modes_tools.atomic_masses import ATOMIC_MASSES
 import numpy as np
+from numpy.typing import NDArray
 
 
 def find_nmodes_displacement(
     start: Geometry,
     end: Geometry,
     nmodes: list[NormalMode],
-) -> np.typing.NDArray[np.float64]:
-    """ Displacement along normal modes:
+) -> NDArray[np.float64]:
+    """ 
+    Displacement along normal modes:
         dq = D^T M ^{1/2} (end - start)
     The units of displacement are L * sqrt(amu), amu stands for atomic mass
     units. L stands for the units of the geometries.
+    D is a matrix that stores the normal modes as its columns.
+    M is a matrix of atomic masses.
     """
 
     # Make sure that these are the same molecules

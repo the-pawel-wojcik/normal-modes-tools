@@ -11,6 +11,9 @@ python -m normal_modes_tool --list nmodes.xyz
 ```
 - Displace the molecular geometry along a selected normal mode, see
   `test/displace/displace.py`.
+```bash
+python -m normal_modes_tool --displace "mode_idx=3 dq=0.1" nmodes.xyz
+```
 - Compare two sets of normal modes and their harmonic frequencies, including
   building of the matrix of normal mode's overlaps, i.e., the Duszyński matrix
   `test/sroph/build_duszynski.py`.
@@ -25,5 +28,3 @@ python -m normal_modes_tool --compare new_nmodes.xyz old_nmodes.xyz
   `test/xsim/deuterate_nmodes.py`.
 - Transform gradients expressed in one set of normal modes to another, see
   `test/xsim/deuterate_xsim_gradient.py`.
-
-

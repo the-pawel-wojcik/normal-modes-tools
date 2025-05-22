@@ -1,5 +1,6 @@
 from typing import overload
 import numpy as np
+from numpy.typing import NDArray
 from normal_modes_tools.conversions import (
     c_SI, inv_cm_to_inv_m, aa_to_m, amu_to_kg, h_SI,
 )
@@ -13,15 +14,15 @@ def huang_rhys_factor(
 
 @overload
 def huang_rhys_factor(
-    dq_aa_sqrt_amu: np.typing.NDArray,
+    dq_aa_sqrt_amu: NDArray,
     mode_wavenumber_cm: float,
-) -> np.typing.NDArray: ...
+) -> NDArray: ...
 
 
 def huang_rhys_factor(
-    dq_aa_sqrt_amu: float | np.typing.NDArray,
+    dq_aa_sqrt_amu: float | NDArray,
     mode_wavenumber_cm: float,
-) -> float | np.typing.NDArray:
+) -> float | NDArray:
     """ Find the Huang-Rhys factors for a displacement of `dq_aa_sqrt_amu`
     along normal with a harmonic wavenumber `mode_wavenumber_cm`. 
 

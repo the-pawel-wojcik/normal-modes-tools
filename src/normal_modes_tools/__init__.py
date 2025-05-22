@@ -1,41 +1,27 @@
 import argparse
 import numpy as np
+from numpy.typing import NDArray
 from numpy import linalg
 from copy import deepcopy
 import matplotlib.pyplot as plt
-from .geometry import Geometry
-from .normal_mode import NormalMode, xyz_file_to_NormalModesList
-from .atomic_masses import *
-from . import mulliken
-from .compare import show_duszynski
-from .printing import pretty_print
-
-
-def build_nmodes_matrix(
-    normal_modes: list[NormalMode],
-) -> np.typing.NDArray[np.float64]:
-    """ Eigenvectors of the mass-weighted Hessian form columns. """
-
-    len_nm = len(normal_modes)
-    dim = 3 * len(normal_modes[0].at.atoms)
-    nmodes_matrix = np.zeros(
-        shape=(dim, len_nm),
-        dtype=np.float64,
-    )
-
-    for column, mode in enumerate(normal_modes):
-        for atom_idx, atom in enumerate(mode.displacement):
-            for cart_idx in range(3):
-                row = atom_idx * 3 + cart_idx
-                nmodes_matrix[row, column] = np.float64(atom.xyz[cart_idx])
-
-    return nmodes_matrix
+from normal_modes_tools.geometry import Geometry
+from normal_modes_tools.normal_mode import (
+    NormalMode,
+    xyz_file_to_NormalModesList,
+    build_nmodes_matrix
+)
+from normal_modes_tools.atomic_masses import *
+from normal_modes_tools import mulliken
+from normal_modes_tools.compare import show_duszynski
+from normal_modes_tools.printing import pretty_print
+from normal_modes_tools.displace import displace_main
+from normal_modes_tools.util import (DisplaceType, get_mass_inv_sqrt)
 
 
 def build_hessian(
     normal_modes: list[NormalMode],
-    mass_matrix: np.typing.NDArray[np.float64]
-) -> np.typing.NDArray[np.float64]:
+    mass_matrix: NDArray[np.float64]
+) -> NDArray[np.float64]:
 
     len_nm = len(normal_modes)
 
@@ -55,24 +41,9 @@ def build_hessian(
     return hessian
 
 
-def get_mass_inv_sqrt(
-        mass_matrix: np.typing.NDArray[np.float64]
-) -> np.typing.NDArray[np.float64]:
-
-    mass_sqrt = np.sqrt(mass_matrix)
-    mass_inv_sqrt = np.zeros(
-        shape=mass_sqrt.shape,
-        dtype=mass_sqrt.dtype
-    )
-    diagonal = mass_sqrt.diagonal()
-    np.fill_diagonal(mass_inv_sqrt, 1.0 / diagonal)
-
-    return mass_inv_sqrt
-
-
 def diagonalize_hessian(
-    hessian: np.typing.NDArray[np.float64],
-    mass_matrix: np.typing.NDArray[np.float64],
+    hessian: NDArray[np.float64],
+    mass_matrix: NDArray[np.float64],
 ) -> np.linalg._linalg.EighResult:
 
     mass_inv_sqrt = get_mass_inv_sqrt(mass_matrix)
@@ -82,7 +53,7 @@ def diagonalize_hessian(
 
 
 def print_eigenvalues(
-    evals: np.typing.NDArray[np.float64],
+    evals: NDArray[np.float64],
     show_tr_rot: bool = False,
 ) -> None:
     """ `evals` is expected to be the value of the `eigenvalues` attribute of
@@ -97,8 +68,8 @@ def print_eigenvalues(
 
 
 def print_pair_of_eigenvalues(
-    left: np.typing.NDArray[np.float64],
-    right: np.typing.NDArray[np.float64],
+    left: NDArray[np.float64],
+    right: NDArray[np.float64],
 ) -> None:
     """ Both `left` and `right` are expected to be the values of the
     `eigenvalues` attribute of the return value of np.linalg.eigh function."""
@@ -132,37 +103,6 @@ def show_nmodes_matrix(eigensystem: np.linalg._linalg.EighResult) -> None:
     plt.show()
 
 
-def generated_displaced_geometry(
-    which_mode: int,
-    displacement: float,
-    reference_geometry: Geometry,
-    normal_modes: list[NormalMode],
-    mass_matrix: np.typing.NDArray[np.float64],
-) -> Geometry:
-    """ Build a new molecular geometry by displacing the reference geometry by
-    `displacement` AA sqrt(amu) along the normal mode number `which_mode` """
-    which_mode = 0
-    len_nmodes = len(normal_modes)
-    
-    nmodes_matrix = build_nmodes_matrix(normal_modes)
-
-    displaced_vector_normal_coordinates = np.zeros(shape=(len_nmodes))
-    displaced_vector_normal_coordinates[which_mode] = displacement
-    displaced_vector_mass_weighted =\
-            nmodes_matrix @ displaced_vector_normal_coordinates
-    mass_inv_sqrt = get_mass_inv_sqrt(mass_matrix)
-    displacement_Descartes =\
-            mass_inv_sqrt @ displaced_vector_mass_weighted\
-            + reference_geometry.to_numpy()
-
-    atom_names = [atom.name for atom in reference_geometry.atoms]
-    displaced = Geometry.from_numpy(
-        vec=displacement_Descartes,
-        atom_names=atom_names
-    )
-    return displaced
-
-
 def esystem_to_NModes(
     esystem: np.linalg._linalg.EighResult,
     geometry: Geometry,
@@ -175,7 +115,7 @@ def esystem_to_NModes(
     if atomic_masses_dict is not None:
         atomic_masses_list = list()
         for atom in geometry.atoms:
-            mass = atomic_masses_dict[normalize_symbol(atom.name)]
+            mass = atomic_masses_dict[atom.name.capitalize()]
             atomic_masses_list.append(deepcopy(mass))
 
 
@@ -192,6 +132,7 @@ def esystem_to_NModes(
     nmodes.sort()
 
     return nmodes
+
 
 def deuterate_modes(
     normal_modes: list[NormalMode],
@@ -225,7 +166,8 @@ def deuterate_modes(
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+    display_name = 'normal_modes_tools' if not __package__ else f'{__package__}'
+    parser = argparse.ArgumentParser(prog=display_name)
     parser.add_argument('xyz_file', help='File with normal modes')
     parser.add_argument(
         '--compare',
@@ -238,6 +180,11 @@ def get_args() -> argparse.Namespace:
         help='Print deuterated normal modes',
         default=False,
         action='store_true',
+    )
+    parser.add_argument(
+        '--displace',
+        help='Displace a geometry along mode `mode_idx` by `dq`.',
+        action=DisplaceType,
     )
     parser.add_argument(
         '--latex',
@@ -269,6 +216,10 @@ def main():
     if args.compare is not None:
         second_normal_modes = xyz_file_to_NormalModesList(args.compare)
         show_duszynski(normal_modes, second_normal_modes)
+
+    if args.displace is not None:
+        move = args.displace
+        displace_main(normal_modes, **move)
 
     if args.deuterate is True:
         deuterate_modes(normal_modes, present_mode=True)
